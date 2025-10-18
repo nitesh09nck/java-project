@@ -1,0 +1,5 @@
+2025-09-10 14:28:04.719 [info] Started local extension host with pid 8018.
+2025-09-10 14:28:05.736 [info] ComputeTargetPlatform: linux-x64
+2025-09-10 14:28:08.748 [info] Settings Sync: Account status changed from uninitialized to unavailable
+2025-09-10 14:28:09.410 [info] [perf] Render performance baseline is 73ms
+2025-09-10 15:30:43.704 [warning] Failed to fetch chat participant registry Failed to fetch

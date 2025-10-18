@@ -1,0 +1,102 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+      HEAD
+  build-test-deploy:
+    runs-on: ubuntu-latest
+
+
+
+  # --- Java Build & Test ---
+  build-java:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Build with Maven
+        run: mvn clean package
+
+      - name: Run tests
+        run: mvn test
+
+      - name: Build Docker image
+
+        run: docker build -t nitesh09nck/java-project:${{ github.sha }} .
+
+      - name: Push Docker image
+        run: docker push nitesh09nck/java-project:${{ github.sha }}
+
+        run: docker build -t your-dockerhub-username/java-project:${{ github.sha }} .
+
+      - name: Push Docker image
+        run: docker push your-dockerhub-username/java-project:${{ github.sha }}
+
+
+      - name: Deploy to Kubernetes
+        run: |
+          kubectl apply -f k8s/deployment.yaml
+          kubectl apply -f k8s/service.yaml
+
+  # --- Node.js Build & Test (Optional Multi-language) ---
+  build-node:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      - name: Install NPM dependencies
+        run: npm ci
+      - name: Run NPM tests
+        run: npm test
+
+  # --- Python Build & Test (Optional) ---
+  build-python:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Run tests
+        run: pytest
+
+  # --- .NET Build & Test (Optional) ---
+  build-dotnet:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+      - name: Restore dependencies
+        run: dotnet restore
+      - name: Build
+        run: dotnet build --configuration Release
+      - name: Test
+        run: dotnet test
+
+
