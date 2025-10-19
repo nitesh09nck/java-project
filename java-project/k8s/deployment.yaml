@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: java-project-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: java-project
+  template:
+    metadata:
+      labels:
+        app: java-project
+    spec:
+      containers:
+        - name: java-project
+          image: nitesh09nck/java-project:latest
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              cpu: "100m"
+            limits:
+              cpu: "500m"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 20
+
