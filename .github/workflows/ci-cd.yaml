@@ -1,4 +1,4 @@
-name: Java CI/CD with K8s Autoscaling
+name: Java CI/CD with K9s Autoscaling
 
 on:
   push:
@@ -21,6 +21,16 @@ jobs:
 
       - name: Build with Maven
         run: mvn clean package -DskipTests
+
+        # SonarCloud analysis
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@v2
+        with:
+          organization: nitesh09nck       # your SonarCloud org key
+          projectKey: nitesh09nck_java-project
+          projectName: java-project
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
       - name: Build Docker image
         run: docker build -t nitesh09nck/java-project:latest .
