@@ -1,54 +1,69 @@
-name: Java CI/CD with K9s Autoscaling
+name: Java CI/CD with K8s and SonarCloud
 
 on:
   push:
-    branches:
-      - main   # Ensure there’s no extra space or tab here
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
 
 jobs:
-  build-test-deploy:
+  build-test-analyze-deploy:
     runs-on: ubuntu-latest
 
     steps:
+      # Checkout code
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # Set up JDK 17
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
+          cache: maven
 
+      # Build and run tests
       - name: Build with Maven
-        run: mvn clean package -DskipTests
+        run: mvn clean package
 
-          # SonarCloud scan
+      - name: Run tests
+        run: mvn test
+
+      # SonarCloud scan
       - name: SonarCloud Scan
-        run: mvn sonar:sonar \
-              -Dsonar.projectKey=nitesh09nck_java-project \
-              -Dsonar.organization=nitesh09nck \
-              -Dsonar.host.url=https://sonarcloud.io \
-              -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+        run: |
+          mvn sonar:sonar \
+            -Dsonar.projectKey=nitesh09nck_java-project \
+            -Dsonar.organization=nitesh09nck \
+            -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
 
+      # Build Docker image
       - name: Build Docker image
         run: docker build -t nitesh09nck/java-project:latest .
 
+      # Docker login
       - name: Docker Login
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
+      # Push Docker image
       - name: Push Docker image
         run: docker push nitesh09nck/java-project:latest
 
+      # Set up Minikube (optional for local testing)
       - name: Set up Minikube
         uses: medyagh/setup-minikube@master
 
+      # Deploy to Kubernetes
       - name: Deploy to Kubernetes
         run: |
           kubectl apply -f k8s/deployment.yaml
           kubectl apply -f k8s/service.yaml
           kubectl apply -f k8s/hpa.yaml
 
-      - name: Verify Pods and Service
+      # Verify Pods and Services
+      - name: Verify Kubernetes
         run: |
           kubectl get pods
           kubectl get svc
