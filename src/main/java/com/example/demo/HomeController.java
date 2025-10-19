@@ -16,7 +16,7 @@ public class HomeController {
         return "Hello from Java Project 👋";
     }
 
-    @GetMapping("/health")
+    @GetMapping("/status")
     public String health() {
         return "UP";
     }
