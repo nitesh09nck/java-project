@@ -3,7 +3,7 @@ name: Java CI/CD with K8s Autoscaling
 on:
   push:
     branches:
-      - "main"  # Ensuring the correct list format
+      - main  # Ensure there is no extra space or special characters
 
 jobs:
   build-test-deploy:
