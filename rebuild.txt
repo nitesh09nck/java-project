@@ -1,2 +1,3 @@
 trigger rebuild
 trigger rebuild-1
+trigger rebuild-test
